@@ -3,8 +3,21 @@ var app = express()
 
 app.set('view engine', 'pug');
 
-urls = {};
 service_url = "halberd:8080"
+
+var url_store = {}
+url_store.urls = {}
+
+url_store.put = function(id, link){
+    this.urls[id] = link
+}
+url_store.get = function(id){
+    return this.urls[id]
+}
+url_store.list = function(){
+    return this.urls
+}
+
 
 
 app.get('/', function(req, res, next){
@@ -13,14 +26,14 @@ app.get('/', function(req, res, next){
 
 app.get(/(\d+)/, function(req, res, next){
     id = parseInt(req.params[0])
-    dest = urls[id]
+    dest = url_store.get(id)
     res.json(dest)
 })
 
 
 app.get('/urls', function(req, res, next){
     
-    res.json(urls)
+    res.json(url_store.list())
 })
 
 app.all('/new/*', function(req, res, next){
@@ -29,7 +42,7 @@ app.all('/new/*', function(req, res, next){
     link = req.path.substr(5)
     
     if (link.match(/(https?:).*/) ){
-        urls[id] = link;
+        url_store.put(id, link)
     
         var binding = {}
         binding.original_url = link
