@@ -11,7 +11,15 @@ app.get('/', function(req, res, next){
     app.render('help', {});
 })
 
+app.get(/(\d+)/, function(req, res, next){
+    id = parseInt(req.params[0])
+    dest = urls[id]
+    res.json(dest)
+})
+
+
 app.get('/urls', function(req, res, next){
+    
     res.json(urls)
 })
 
