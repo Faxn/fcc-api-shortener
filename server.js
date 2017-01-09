@@ -5,20 +5,11 @@ app.set('view engine', 'pug');
 
 service_url = "halberd:8080"
 
-var url_store = {}
-url_store.urls = {}
+//var mongo = require('tingodb')()
+//var db = new mongo.Db(process.cwd()+'/data', {})
 
-url_store.put = function(id, link){
-    this.urls[id] = link
-}
-url_store.get = function(id){
-    return this.urls[id]
-}
-url_store.list = function(){
-    return this.urls
-}
-
-
+var mongo = require('mongodb')
+var db = new mongo.Db("test", mongo.Server("localhost", 27017) )
 
 app.get('/', function(req, res, next){
     app.render('help', {});
@@ -26,14 +17,37 @@ app.get('/', function(req, res, next){
 
 app.get(/(\d+)/, function(req, res, next){
     id = parseInt(req.params[0])
-    dest = url_store.get(id)
-    res.json(dest)
+    db.open(function(err, db){
+        if(err) {
+            console.log(err)
+            res.status(500).send(err)
+        }
+        urls = db.collection('urls')
+        urls.findOne({'_id':id}, function(err, doc){
+            if(err) {
+                console.log(err)
+                res.status(500).send(err)
+            }
+            res.json(doc)
+        })
+        db.close()
+    })
 })
 
 
 app.get('/urls', function(req, res, next){
-    
-    res.json(url_store.list())
+    db.open(function(err, db){
+        if(err) {
+            console.log(err)
+            res.status(500).send(err)
+        }
+        urls = db.collection('urls')
+        urls.find().toArray(function(err, array){
+            res.json(array)
+        });
+        
+        db.close()            
+    })   
 })
 
 app.all('/new/*', function(req, res, next){
@@ -42,7 +56,15 @@ app.all('/new/*', function(req, res, next){
     link = req.path.substr(5)
     
     if (link.match(/(https?:).*/) ){
-        url_store.put(id, link)
+        db.open(function(err, db){
+            if(err) {
+                console.log(err)
+                res.status(500).send(err)
+            }
+            urls = db.collection('urls')
+            urls.insert({"_id":id, "link":link})
+            db.close()
+        })
     
         var binding = {}
         binding.original_url = link
