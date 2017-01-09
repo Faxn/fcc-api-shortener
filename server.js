@@ -28,7 +28,8 @@ app.get(/(\d+)/, function(req, res, next){
                 console.log(err)
                 res.status(500).send(err)
             }
-            res.json(doc)
+            //res.json(doc)
+            res.redirect(308, doc.link)
         })
         db.close()
     })
