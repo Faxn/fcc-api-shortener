@@ -1,8 +1,28 @@
+style.
+    .code {
+        background-color: lightgrey;
+        color: darkred;
+        font-family: monospace;
+    }
+
+
+
 h1 URL Shortener Service
 
-
-
-
+p 
+    Provides an api to create url aliases.
 
 h2 Example Url creation
-h2 Example Ull creation response
+p.code= url + '/new/http://kirikiribasara.com'
+p.code= url + '/new/https://google.com'
+
+h2 Example Url creation response
+
+p.code 
+    |{"original_url":"http://kirikiribasara.com","id":909,"new_url":"
+    = url
+    |/909"}
+p.code 
+    |{"original_url":"https://google.com","id":350,"new_url":"
+    = url
+    |/350"}

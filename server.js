@@ -12,43 +12,7 @@ var mongo = require('mongodb')
 var db = new mongo.Db("test", mongo.Server("localhost", 27017) )
 
 app.get('/', function(req, res, next){
-    app.render('help', {});
-})
-
-app.get(/(\d+)/, function(req, res, next){
-    id = parseInt(req.params[0])
-    db.open(function(err, db){
-        if(err) {
-            console.log(err)
-            res.status(500).send(err)
-        }
-        urls = db.collection('urls')
-        urls.findOne({'_id':id}, function(err, doc){
-            if(err) {
-                console.log(err)
-                res.status(500).send(err)
-            }
-            //res.json(doc)
-            res.redirect(308, doc.link)
-        })
-        db.close()
-    })
-})
-
-
-app.get('/urls', function(req, res, next){
-    db.open(function(err, db){
-        if(err) {
-            console.log(err)
-            res.status(500).send(err)
-        }
-        urls = db.collection('urls')
-        urls.find().toArray(function(err, array){
-            res.json(array)
-        });
-        
-        db.close()            
-    })   
+    res.render('help', {url:service_url});
 })
 
 app.all('/new/*', function(req, res, next){
@@ -77,6 +41,51 @@ app.all('/new/*', function(req, res, next){
         res.send(400)      
     }
 })
+
+
+app.get(/(\d+)/, function(req, res, next){
+    id = parseInt(req.params[0])
+    db.open(function(err, db){
+        if(err) {
+            console.log(err)
+            res.status(500).send(err)
+        }
+        urls = db.collection('urls')
+        urls.findOne({'_id':id}, function(err, doc){
+            if(err) {
+                console.log(err)
+                res.status(500).send(err)
+                return
+            }
+            if(!doc){
+                res.sendStatus(404);
+                return 
+            }
+            
+            //res.json(doc)
+            res.redirect(308, doc.link)
+        })
+        db.close()
+    })
+})
+
+
+app.get('/urls', function(req, res, next){
+    db.open(function(err, db){
+        if(err) {
+            console.log(err)
+            res.status(500).send(err)
+        }
+        urls = db.collection('urls')
+        urls.find().toArray(function(err, array){
+            res.json(array)
+        });
+        
+        db.close()            
+    })   
+})
+
+
 
 
 var port;
